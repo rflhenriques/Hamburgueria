@@ -21,6 +21,10 @@ public class Pedido implements Cloneable {
 
     private static int contadorId = 1;
 
+    public static void resetContador() {
+        contadorId = 1;
+    }
+
     private final int id;
     private List<IItemCardapio> itens;
     private IEstadoPedido estadoAtual;

@@ -1,6 +1,5 @@
 package burgergof.interpreter;
 
-import burgergof.cardapio.IItemCardapio;
 import burgergof.model.Carrinho;
 
 /**

@@ -14,6 +14,11 @@ public class MediadorCozinha implements IMediadorCozinha {
     private boolean proteinaProta        = false;
     private boolean acompanhamentoProto  = false;
 
+    public void reiniciar() {
+        this.proteinaProta = false;
+        this.acompanhamentoProto = false;
+    }
+
     @Override
     public void registrarEstacao(String nome, EstacaoCozinha estacao) {
         estacoes.put(nome, estacao);

@@ -6,6 +6,7 @@ import burgergof.model.Pedido;
 import burgergof.pagamento.IEstrategiaPagamento;
 import burgergof.estoque.GerenciadorEstoque;
 import burgergof.cozinha.FilaCozinha;
+import burgergof.notificacao.IObserver;
 
 /**
  * <<Facade>>
@@ -28,19 +29,25 @@ public class TotemFacade {
      * Fluxo completo simplificado: o cliente só chama este método.
      * Internamente, coordena múltiplos subsistemas.
      */
-    public boolean finalizarPedido(Carrinho carrinho, String nomeCliente, 
-                                   IEstrategiaPagamento estrategiaPagamento) {
+    public Pedido finalizarPedido(Carrinho carrinho, String nomeCliente, 
+                                   IEstrategiaPagamento estrategiaPagamento,
+                                   java.util.List<IObserver> observers) {
         
         System.out.println("\n[Facade] Iniciando processamento do pedido...");
 
         // 1. Valida estoque
         if (!validarEstoque(carrinho)) {
             System.out.println("[Facade] ❌ Pedido cancelado: itens fora de estoque.");
-            return false;
+            return null;
         }
 
         // 2. Cria o pedido
         Pedido pedido = new Pedido(nomeCliente);
+        if (observers != null) {
+            for (IObserver obs : observers) {
+                pedido.addObserver(obs);
+            }
+        }
         for (IItemCardapio item : carrinho.getItens()) {
             pedido.adicionarItem(item);
         }
@@ -51,7 +58,7 @@ public class TotemFacade {
         
         if (!pagamentoOk) {
             System.out.println("[Facade] ❌ Pagamento recusado.");
-            return false;
+            return null;
         }
 
         pedido.setTotalPago(total);
@@ -67,7 +74,7 @@ public class TotemFacade {
         System.out.println("[Facade] ✅ Pedido #" + pedido.getId() + " finalizado com sucesso!");
         System.out.println("[Facade] Total pago: R$ " + String.format("%.2f", total));
         
-        return true;
+        return pedido;
     }
 
     private boolean validarEstoque(Carrinho carrinho) {

@@ -1,7 +1,6 @@
 package burgergof.atendimento;
 
 import burgergof.model.Pedido;
-import burgergof.cozinha.EstadoCancelado;
 
 /**
  * <<RealSubject>> (Proxy)

@@ -1,7 +1,6 @@
 package burgergof.cardapio;
 
 import burgergof.visitor.IVisitor;
-import burgergof.cardapio.InfoNutricional;
 
 /**
  * <<Leaf>> (Composite)

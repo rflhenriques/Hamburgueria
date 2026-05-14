@@ -1,0 +1,630 @@
+@startuml BurgerGoF_DiagramaCompleto
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam PackageBorderColor #333333
+skinparam ClassBorderColor #333333
+skinparam ArrowColor #333333
+
+title Diagrama de Classes — BurgerGoF (23 Padrões GoF)
+
+' ═══════════════════════════════════════════════
+package "burgergof.atendimento" #DDEEFF {
+
+  class SistemaHamburgueria << (S,#FF7700) Singleton >> {
+    - {static} instancia : SistemaHamburgueria
+    - nomeRestaurante : String
+    - aberto : boolean
+    - SistemaHamburgueria()
+    + {static} getInstancia() : SistemaHamburgueria
+    + getNomeRestaurante() : String
+    + isAberto() : boolean
+  }
+
+  interface IOperacaoCaixa << Proxy Subject >> {
+    + cancelarPedido(Pedido, String) : boolean
+    + estornarPagamento(Pedido, String) : boolean
+    + abrirCaixa(String)
+    + fecharCaixa()
+  }
+
+  class CaixaReal << RealSubject >> {
+    + cancelarPedido(Pedido, String) : boolean
+    + estornarPagamento(Pedido, String) : boolean
+    + abrirCaixa(String)
+    + fecharCaixa()
+  }
+
+  class ProxyAutorizacaoGerente << Proxy >> {
+    - caixaReal : CaixaReal
+    - senhaGerente : String
+    - autenticar(String) : boolean
+    + cancelarPedido(Pedido, String) : boolean
+    + estornarPagamento(Pedido, String) : boolean
+  }
+
+  class TotemFacade << Facade >> {
+    - estoque : GerenciadorEstoque
+    - filaCozinha : FilaCozinha
+    + finalizarPedido(Carrinho, String, IEstrategiaPagamento, List) : Pedido
+  }
+}
+
+IOperacaoCaixa <|.. CaixaReal
+IOperacaoCaixa <|.. ProxyAutorizacaoGerente
+ProxyAutorizacaoGerente --> CaixaReal : delega após auth
+
+' ═══════════════════════════════════════════════
+package "burgergof.model" #DDFFDD {
+
+  class Pedido << Prototype / State Context / Observer Subject / Memento Originator >> {
+    - {static} contadorId : int
+    - id : int
+    - nomeCliente : String
+    - totalPago : double
+    - itens : List<IItemCardapio>
+    - estadoAtual : IEstadoPedido
+    - observers : List<IObserver>
+    + clone() : Pedido
+    + avancarEstado()
+    + cancelar()
+    + setEstado(IEstadoPedido)
+    + addObserver(IObserver)
+    + notificarObservers()
+    + salvarMemento() : PedidoMemento
+    + restaurarMemento(PedidoMemento)
+    + calcularTotal() : double
+  }
+
+  class PedidoMemento << Memento >> {
+    - itensSalvos : List<IItemCardapio>
+    + getItensSalvos() : List<IItemCardapio>
+  }
+
+  class Carrinho << Memento Originator >> {
+    - itens : List<IItemCardapio>
+    - historico : Deque<PedidoMemento>
+    + adicionarItem(IItemCardapio)
+    + removerItem(IItemCardapio)
+    + limpar()
+    + desfazer() : boolean
+    + calcularTotal() : double
+  }
+
+  enum StatusPedido {
+    AGUARDANDO_PAGAMENTO
+    PAGO
+    NA_COZINHA
+    PRONTO
+    ENTREGUE
+    CANCELADO
+  }
+}
+
+Pedido *-- IEstadoPedido
+Pedido o-- IObserver
+Pedido --> PedidoMemento : cria / restaura
+Carrinho --> PedidoMemento : cria / restaura
+Pedido ..|> Cloneable
+
+' ═══════════════════════════════════════════════
+package "burgergof.visitor" #FFEECC {
+
+  interface IVisitor << Visitor >> {
+    + visitarProduto(Produto)
+    + visitarCombo(Combo)
+  }
+
+  class VisitorCalculoCalorias << ConcreteVisitor >> {
+    - totalCalorias : int
+    + visitarProduto(Produto)
+    + visitarCombo(Combo)
+    + getTotalCalorias() : int
+    + exibirResumo()
+  }
+
+  class VisitorCalculoImpostos << ConcreteVisitor >> {
+    - totalImpostos : double
+    + visitarProduto(Produto)
+    + visitarCombo(Combo)
+    + getTotalImpostos() : double
+    + exibirResumo()
+  }
+}
+
+IVisitor <|.. VisitorCalculoCalorias
+IVisitor <|.. VisitorCalculoImpostos
+
+' ═══════════════════════════════════════════════
+package "burgergof.cardapio" #FFEEFF {
+
+  interface IItemCardapio << Component / Composite >> {
+    + getPreco() : double
+    + getDescricao() : String
+    + aceitar(IVisitor)
+  }
+
+  class Produto << Leaf / Flyweight Client >> {
+    - nome : String
+    - preco : double
+    - categoria : String
+    - infoNutricional : InfoNutricional
+    + getCategoria() : String
+    + getInfo() : InfoNutricional
+    + aceitar(IVisitor)
+  }
+
+  class Combo << Composite >> {
+    - nome : String
+    - desconto : double
+    - itens : List<IItemCardapio>
+    + adicionar(IItemCardapio)
+    + remover(IItemCardapio)
+    + getItens() : List<IItemCardapio>
+    + aceitar(IVisitor)
+  }
+
+  abstract class AdicionalDecorator << Decorator >> {
+    # itemBase : IItemCardapio
+    + getPreco() : double
+    + getDescricao() : String
+  }
+
+  class BaconDecorator << ConcreteDecorator >> {
+    - {static} PRECO : double = 3.00
+    + getPreco() : double
+    + getDescricao() : String
+  }
+
+  class CheddarDecorator << ConcreteDecorator >> {
+    - {static} PRECO : double = 2.50
+    + getPreco() : double
+    + getDescricao() : String
+  }
+
+  class OvoDecorator << ConcreteDecorator >> {
+    - {static} PRECO : double = 2.00
+    + getPreco() : double
+    + getDescricao() : String
+  }
+
+  class RemoverIngredienteDecorator << ConcreteDecorator >> {
+    - ingredienteRemovido : String
+    + getPreco() : double
+    + getDescricao() : String
+  }
+
+  class InfoNutricional << Flyweight >> {
+    - nomeIngrediente : String
+    - calorias : int
+    - alergenos : String
+    - descricaoDetalhada : String
+    + getCalorias() : int
+    + getAlergenos() : String
+  }
+
+  class FabricaInfoNutricional << FlyweightFactory >> {
+    - {static} cache : Map<String, InfoNutricional>
+    + {static} getInfo(String) : InfoNutricional
+    + {static} totalInstancias() : int
+  }
+}
+
+IItemCardapio <|.. Produto
+IItemCardapio <|.. Combo
+IItemCardapio <|.. AdicionalDecorator
+AdicionalDecorator o-- IItemCardapio : wraps
+AdicionalDecorator <|-- BaconDecorator
+AdicionalDecorator <|-- CheddarDecorator
+AdicionalDecorator <|-- OvoDecorator
+AdicionalDecorator <|-- RemoverIngredienteDecorator
+Produto --> InfoNutricional
+FabricaInfoNutricional --> InfoNutricional : gerencia cache
+
+' ═══════════════════════════════════════════════
+package "burgergof.cozinha" #FFFACD {
+
+  interface IEstadoPedido << State >> {
+    + avancar(Pedido)
+    + cancelar(Pedido)
+    + getNome() : String
+  }
+
+  class EstadoAguardandoPagamento << ConcreteState >> { + avancar(Pedido)\n+ cancelar(Pedido)\n+ getNome() : String }
+  class EstadoPago                << ConcreteState >> { + avancar(Pedido)\n+ cancelar(Pedido)\n+ getNome() : String }
+  class EstadoNaCozinha           << ConcreteState >> { + avancar(Pedido)\n+ cancelar(Pedido)\n+ getNome() : String }
+  class EstadoPronto              << ConcreteState >> { + avancar(Pedido)\n+ cancelar(Pedido)\n+ getNome() : String }
+  class EstadoEntregue            << ConcreteState >> { + avancar(Pedido)\n+ cancelar(Pedido)\n+ getNome() : String }
+  class EstadoCancelado           << ConcreteState >> { + avancar(Pedido)\n+ cancelar(Pedido)\n+ getNome() : String }
+
+  interface ICriadorLanche << Factory Method >> {
+    + criarLanche() : Produto
+    + descreverLanche() : String
+  }
+
+  class CriadorBurgerClassico << ConcreteCreator >> { + criarLanche() : Produto }
+  class CriadorBurgerVeggie   << ConcreteCreator >> { + criarLanche() : Produto }
+
+  interface IFabricaCombo << Abstract Factory >> {
+    + criarBurger() : Produto
+    + criarBebida() : Produto
+    + criarAcompanhamento() : Produto
+    + criarSobremesa() : Produto
+  }
+
+  class FabricaComboClassico << ConcreteFactory >> {
+    + criarBurger() : Produto
+    + criarBebida() : Produto
+    + criarAcompanhamento() : Produto
+    + criarSobremesa() : Produto
+  }
+
+  class FabricaComboVeggie << ConcreteFactory >> {
+    + criarBurger() : Produto
+    + criarBebida() : Produto
+    + criarAcompanhamento() : Produto
+    + criarSobremesa() : Produto
+  }
+
+  interface IBuilderLanche << Builder >> {
+    + setPao(String) : IBuilderLanche
+    + setCarne(String) : IBuilderLanche
+    + addAdicional(String, double) : IBuilderLanche
+    + semIngrediente(String) : IBuilderLanche
+    + getResultado() : Produto
+    + reset()
+  }
+
+  class MontadorBurgerCustomizado << ConcreteBuilder >> {
+    - tipoPao : String
+    - tipoCarne : String
+    - precoBase : double
+    - adicionais : List<String>
+    - removidos : List<String>
+    + getResultado() : Produto
+  }
+
+  class DiretorCozinha << Director >> {
+    - builder : IBuilderLanche
+    + construirDuploBacon() : Produto
+    + construirVegano() : Produto
+    + construirSimples() : Produto
+  }
+
+  interface IMediadorCozinha << Mediator >> {
+    + notificar(EstacaoCozinha, String)
+    + registrarEstacao(String, EstacaoCozinha)
+  }
+
+  abstract class EstacaoCozinha << Colleague >> {
+    # nome : String
+    # mediador : IMediadorCozinha
+    + executar(String)
+    # avisar(String)
+  }
+
+  class EstacaoChapa     << ConcreteColleague >> { + executar(String) }
+  class EstacaoFritadeira<< ConcreteColleague >> { + executar(String) }
+  class EstacaoMontagem  << ConcreteColleague >> { + executar(String) }
+
+  class MediadorCozinha << ConcreteMediator >> {
+    - estacoes : Map<String, EstacaoCozinha>
+    + notificar(EstacaoCozinha, String)
+    + registrarEstacao(String, EstacaoCozinha)
+  }
+
+  abstract class PreparoLanche << Template Method >> {
+    + {final} prepararLanche(Produto)
+    # {abstract} prepararProteina()
+    - tostarPao()
+    - montar()
+    - embalar()
+  }
+
+  class PreparoLancheClassico << ConcreteClass >> { # prepararProteina() }
+  class PreparoLancheVegano   << ConcreteClass >> { # prepararProteina() }
+
+  class FilaCozinha {
+    - fila : Queue<Pedido>
+    + adicionar(Pedido)
+    + proximoPedido() : Pedido
+  }
+}
+
+IEstadoPedido <|.. EstadoAguardandoPagamento
+IEstadoPedido <|.. EstadoPago
+IEstadoPedido <|.. EstadoNaCozinha
+IEstadoPedido <|.. EstadoPronto
+IEstadoPedido <|.. EstadoEntregue
+IEstadoPedido <|.. EstadoCancelado
+
+ICriadorLanche <|.. CriadorBurgerClassico
+ICriadorLanche <|.. CriadorBurgerVeggie
+
+IFabricaCombo <|.. FabricaComboClassico
+IFabricaCombo <|.. FabricaComboVeggie
+
+IBuilderLanche <|.. MontadorBurgerCustomizado
+DiretorCozinha o-- IBuilderLanche
+
+IMediadorCozinha <|.. MediadorCozinha
+EstacaoCozinha <|-- EstacaoChapa
+EstacaoCozinha <|-- EstacaoFritadeira
+EstacaoCozinha <|-- EstacaoMontagem
+EstacaoCozinha --> IMediadorCozinha
+
+PreparoLanche <|-- PreparoLancheClassico
+PreparoLanche <|-- PreparoLancheVegano
+
+' ═══════════════════════════════════════════════
+package "burgergof.pagamento" #FFE4E1 {
+
+  interface IEstrategiaPagamento << Strategy >> {
+    + processar(double) : boolean
+    + getDescricao() : String
+  }
+
+  class PagamentoPix     << ConcreteStrategy >> { + processar(double) : boolean }
+  class PagamentoCartao  << ConcreteStrategy >> {
+    - adapter : AdapterMercadoPago
+    + processar(double) : boolean
+  }
+  class PagamentoDinheiro<< ConcreteStrategy >> {
+    - valorEntregue : double
+    + processar(double) : boolean
+  }
+
+  class MercadoPagoAPI << Adaptee >> {
+    + sendPaymentRequest(MercadoPagoRequest) : MercadoPagoResponse
+  }
+
+  class AdapterMercadoPago << Adapter >> {
+    - apiExterna : MercadoPagoAPI
+    + processar(double) : boolean
+  }
+
+  class MercadoPagoRequest  { - amount : double\n- paymentMethod : String }
+  class MercadoPagoResponse { - statusCode : int\n- message : String\n+ isApproved() : boolean }
+}
+
+IEstrategiaPagamento <|.. PagamentoPix
+IEstrategiaPagamento <|.. PagamentoCartao
+IEstrategiaPagamento <|.. PagamentoDinheiro
+IEstrategiaPagamento <|.. AdapterMercadoPago
+AdapterMercadoPago --> MercadoPagoAPI : adapta
+MercadoPagoAPI --> MercadoPagoRequest
+MercadoPagoAPI --> MercadoPagoResponse
+PagamentoCartao --> AdapterMercadoPago
+
+' ═══════════════════════════════════════════════
+package "burgergof.notificacao" #E6FFE6 {
+
+  interface IObserver << Observer >> {
+    + atualizar(Pedido)
+  }
+
+  class PainelCozinha << ConcreteObserver >> {
+    - nomePainel : String
+    + atualizar(Pedido)
+  }
+
+  class AppCliente << ConcreteObserver >> {
+    - nomeCliente : String
+    - notificacao : Notificacao
+    + atualizar(Pedido)
+  }
+
+  interface IPlataformaEnvio << Bridge Implementor >> {
+    + disparar(String, String)
+    + getNomePlataforma() : String
+  }
+
+  class EnvioWhatsApp << ConcreteImplementor >> { + disparar(String, String) }
+  class EnvioSMS      << ConcreteImplementor >> { + disparar(String, String) }
+  class EnvioEmail    << ConcreteImplementor >> { + disparar(String, String) }
+
+  abstract class Notificacao << Bridge Abstraction >> {
+    # plataforma : IPlataformaEnvio
+    + enviar(String, String)
+    + setPlataforma(IPlataformaEnvio)
+  }
+
+  class NotificacaoPedidoRecebido << RefinedAbstraction >> { + enviar(String, String) }
+  class NotificacaoPedidoPronto   << RefinedAbstraction >> { + enviar(String, String) }
+  class NotificacaoPedidoEmPreparo<< RefinedAbstraction >> { + enviar(String, String) }
+}
+
+IObserver <|.. PainelCozinha
+IObserver <|.. AppCliente
+IPlataformaEnvio <|.. EnvioWhatsApp
+IPlataformaEnvio <|.. EnvioSMS
+IPlataformaEnvio <|.. EnvioEmail
+Notificacao o-- IPlataformaEnvio
+Notificacao <|-- NotificacaoPedidoRecebido
+Notificacao <|-- NotificacaoPedidoPronto
+Notificacao <|-- NotificacaoPedidoEmPreparo
+AppCliente --> Notificacao
+
+' ═══════════════════════════════════════════════
+package "burgergof.carrinho" #FFFACD {
+
+  interface IComando << Command >> {
+    + executar()
+    + desfazer()
+    + getDescricao() : String
+  }
+
+  class ComandoAdicionarItem << ConcreteCommand >> {
+    - carrinho : Carrinho
+    - item : IItemCardapio
+    + executar()
+    + desfazer()
+  }
+
+  class ComandoRemoverItem << ConcreteCommand >> {
+    - carrinho : Carrinho
+    - item : IItemCardapio
+    + executar()
+    + desfazer()
+  }
+
+  class GerenciadorComandos << Invoker >> {
+    - historico : Deque<IComando>
+    + executar(IComando)
+    + desfazerUltimo()
+    + desfazerTodos()
+  }
+}
+
+IComando <|.. ComandoAdicionarItem
+IComando <|.. ComandoRemoverItem
+GerenciadorComandos o-- IComando
+ComandoAdicionarItem --> Carrinho
+ComandoRemoverItem   --> Carrinho
+
+' ═══════════════════════════════════════════════
+package "burgergof.desconto" #FFE4B5 {
+
+  abstract class ProcessadorDesconto << Chain of Responsibility >> {
+    # proximo : ProcessadorDesconto
+    + setProximo(ProcessadorDesconto) : ProcessadorDesconto
+    + {abstract} calcular(Pedido, String) : double
+    # passarAdiante(Pedido, String) : double
+  }
+
+  class DescontoGerente        << ConcreteHandler >> { + calcular(Pedido, String) : double }
+  class DescontoPromocaoDia    << ConcreteHandler >> { + calcular(Pedido, String) : double }
+  class DescontoAniversariante << ConcreteHandler >> { + calcular(Pedido, String) : double }
+  class SemDescontoHandler     << ConcreteHandler >> { + calcular(Pedido, String) : double }
+  class FabricaCadeiaDesconto  { + {static} construir() : ProcessadorDesconto }
+}
+
+ProcessadorDesconto <|-- DescontoGerente
+ProcessadorDesconto <|-- DescontoPromocaoDia
+ProcessadorDesconto <|-- DescontoAniversariante
+ProcessadorDesconto <|-- SemDescontoHandler
+ProcessadorDesconto --> ProcessadorDesconto : proximo
+FabricaCadeiaDesconto ..> ProcessadorDesconto : constrói
+
+' ═══════════════════════════════════════════════
+package "burgergof.iterator" #F0F8FF {
+
+  interface IIterador << Iterator >> {
+    + temProximo() : boolean
+    + proximo() : IItemCardapio
+    + reiniciar()
+  }
+
+  class IteradorCardapio << ConcreteIterator >> {
+    - itensPlanificados : List<IItemCardapio>
+    - posicao : int
+    + temProximo() : boolean
+    + proximo() : IItemCardapio
+    + totalItens() : int
+  }
+}
+
+IIterador <|.. IteradorCardapio
+IteradorCardapio --> IItemCardapio : percorre
+
+' ═══════════════════════════════════════════════
+package "burgergof.interpreter" #FFF0F5 {
+
+  interface IExpressao << AbstractExpression >> {
+    + interpretar(Carrinho)
+  }
+
+  class ItemExpressao       << TerminalExpression >>    { + interpretar(Carrinho) }
+  class QuantidadeExpressao << NonTerminalExpression >>  {
+    - quantidade : int
+    - itemExpressao : IExpressao
+    + interpretar(Carrinho)
+  }
+  class ModificadorExpressao<< NonTerminalExpression >>  {
+    - modificador : String
+    - alvo : String
+    + interpretar(Carrinho)
+  }
+
+  class ContextoInterpretador {
+    - tokens : String[]
+    - posicao : int
+    + getTokens() : String[]
+    + proximoToken() : String
+  }
+
+  class InterpretadorPedido << Client >> {
+    - ITENS_VALIDOS : List<String>
+    + interpretar(String, Carrinho)
+    - construirArvore(ContextoInterpretador) : List<IExpressao>
+  }
+}
+
+IExpressao <|.. ItemExpressao
+IExpressao <|.. QuantidadeExpressao
+IExpressao <|.. ModificadorExpressao
+QuantidadeExpressao o-- IExpressao
+InterpretadorPedido --> ContextoInterpretador
+InterpretadorPedido --> IExpressao : constrói árvore
+
+' ═══════════════════════════════════════════════
+package "burgergof.estoque" #F5F5DC {
+  class GerenciadorEstoque << (S,#FF7700) Singleton >> {
+    - {static} instancia : GerenciadorEstoque
+    - estoque : Map<String, Integer>
+    + {static} getInstancia() : GerenciadorEstoque
+    + verificar(String, int) : boolean
+    + baixar(String, int)
+    + repor(String, int)
+  }
+}
+
+' ═══════════════════════════════════════════════
+' LIGAÇÕES ENTRE PACOTES
+' ═══════════════════════════════════════════════
+TotemFacade ..> Carrinho           : lê itens
+TotemFacade ..> IEstrategiaPagamento: usa
+TotemFacade ..> FilaCozinha        : envia pedido
+TotemFacade ..> GerenciadorEstoque : consulta
+TotemFacade ..> Pedido             : cria
+
+Pedido ..> IItemCardapio           : contém
+Carrinho ..> IItemCardapio         : contém
+
+ModificadorExpressao ..> BaconDecorator            : aplica
+ModificadorExpressao ..> CheddarDecorator           : aplica
+ModificadorExpressao ..> OvoDecorator               : aplica
+ModificadorExpressao ..> RemoverIngredienteDecorator : aplica
+
+note top of SistemaHamburgueria
+  <<Singleton>>
+  Double-checked locking
+  Thread-safe
+end note
+
+note top of Pedido
+  Participa de 4 padrões:
+  Prototype, State,
+  Observer, Memento
+end note
+
+note top of IItemCardapio
+  Interface raiz do Composite.
+  aceitar(IVisitor) habilita
+  o padrão Visitor em toda
+  a árvore do cardápio.
+end note
+
+note right of AdicionalDecorator
+  Agregação (losango branco)
+  com IItemCardapio — o item
+  decorado existe independente
+  do Decorator.
+end note
+
+note bottom of PreparoLanche
+  prepararLanche() é <<final>>
+  Garante imutabilidade
+  da sequência de etapas.
+end note
+
+@enduml

@@ -2,27 +2,17 @@ package burgergof.desconto;
 
 import burgergof.model.Pedido;
 
-/**
- * <<ConcreteHandler>> (Chain of Responsibility)
- * Aplica desconto de aniversário (código "ANIVERSARIO").
- */
 public class DescontoAniversariante extends ProcessadorDesconto {
+    private static final String CODIGO = "ANIVERSARIO";
+    private static final double PCT    = 20.0;
 
-    private static final String CODIGO  = "ANIVERSARIO";
-    private static final double PERCENT = 20.0;
-
-    @Override
-    public double calcular(Pedido pedido, String codigoCupom) {
-        if (CODIGO.equalsIgnoreCase(codigoCupom)) {
-            double desconto = pedido.calcularTotal() * (PERCENT / 100.0);
-            double total    = pedido.calcularTotal() - desconto;
-            System.out.println("[Chain] DescontoAniversariante aplicado: -"
-                    + PERCENT + "% → R$ "
-                    + String.format("%.2f", total));
+    @Override public double calcular(Pedido p, String cupom) {
+        if (CODIGO.equalsIgnoreCase(cupom)) {
+            double total = p.calcularTotal() * (1 - PCT / 100);
+            System.out.println("[Chain] DescontoAniversariante -" + (int)PCT + "% → R$ " + String.format("%.2f", total));
             return total;
         }
-        System.out.println("[Chain] DescontoAniversariante: cupom não reconhecido, "
-                + "passando adiante...");
-        return passarAdiante(pedido, codigoCupom);
+        System.out.println("[Chain] DescontoAniversariante: não aplicável, passando adiante...");
+        return passarAdiante(p, cupom);
     }
 }
