@@ -2,11 +2,6 @@ package burgergof.atendimento;
 
 import burgergof.model.Pedido;
 
-/**
- * <<RealSubject>> (Proxy)
- * Executa as operações reais de caixa.
- * Só é acessado pelo Proxy após validação de credenciais.
- */
 public class CaixaReal implements IOperacaoCaixa {
 
     private String operadorAtual;
@@ -40,5 +35,7 @@ public class CaixaReal implements IOperacaoCaixa {
         System.out.println("[CaixaReal] Caixa fechado. Operador: " + operadorAtual);
     }
 
-    public boolean isAberto() { return aberto; }
+    public boolean isAberto() {
+        return aberto;
+    }
 }

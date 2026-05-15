@@ -3,11 +3,6 @@ package burgergof.cozinha;
 import burgergof.cardapio.Produto;
 import burgergof.cardapio.FabricaInfoNutricional;
 
-/**
- * <<ConcreteFactory>> (Abstract Factory)
- * Cria a família de produtos do Combo Clássico:
- * Burger Clássico + Refrigerante + Batata Frita + Sorvete.
- */
 public class FabricaComboClassico implements IFabricaCombo {
 
     @Override

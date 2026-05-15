@@ -1,9 +1,5 @@
 package burgergof.model;
 
-/**
- * Representa um ingrediente físico do sistema.
- * Utilizado pelo padrão Flyweight para compartilhar dados nutricionais.
- */
 public class Ingrediente {
 
     private final String nome;
@@ -14,8 +10,13 @@ public class Ingrediente {
         this.preco = preco;
     }
 
-    public String getNome() { return nome; }
-    public double getPreco() { return preco; }
+    public String getNome() {
+        return nome;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
 
     @Override
     public String toString() {

@@ -6,21 +6,11 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-/**
- * Representa o carrinho pré-pedido do cliente.
- *
- * Participa dos seguintes padrões:
- *  - Command  : executa e desfaz ações sobre os itens
- *  - Memento  : empilha snapshots para suportar desfazer múltiplos passos
- */
 public class Carrinho {
 
     private final List<IItemCardapio> itens = new ArrayList<>();
     private final Deque<PedidoMemento> historico = new ArrayDeque<>();
 
-    // -------------------------------------------------------------------------
-    // Memento — salva estado antes de qualquer operação destrutiva
-    // -------------------------------------------------------------------------
     private void salvarSnapshot() {
         historico.push(new PedidoMemento(new ArrayList<>(itens)));
     }
@@ -37,9 +27,6 @@ public class Carrinho {
         return true;
     }
 
-    // -------------------------------------------------------------------------
-    // Operações com snapshot automático
-    // -------------------------------------------------------------------------
     public void adicionarItem(IItemCardapio item) {
         salvarSnapshot();
         itens.add(item);
@@ -58,8 +45,13 @@ public class Carrinho {
         System.out.println("[Carrinho] Carrinho esvaziado.");
     }
 
-    public List<IItemCardapio> getItens()  { return new ArrayList<>(itens); }
-    public boolean isEmpty()               { return itens.isEmpty(); }
+    public List<IItemCardapio> getItens() {
+        return new ArrayList<>(itens);
+    }
+
+    public boolean isEmpty() {
+        return itens.isEmpty();
+    }
 
     public double calcularTotal() {
         return itens.stream().mapToDouble(IItemCardapio::getPreco).sum();
@@ -69,8 +61,8 @@ public class Carrinho {
     public String toString() {
         StringBuilder sb = new StringBuilder("=== Carrinho ===\n");
         itens.forEach(i -> sb.append("  • ").append(i.getDescricao())
-                              .append(" — R$ ").append(String.format("%.2f", i.getPreco()))
-                              .append("\n"));
+                .append(" — R$ ").append(String.format("%.2f", i.getPreco()))
+                .append("\n"));
         sb.append("Total: R$ ").append(String.format("%.2f", calcularTotal()));
         return sb.toString();
     }

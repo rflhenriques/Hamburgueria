@@ -4,12 +4,6 @@ import burgergof.visitor.IVisitor;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * <<Composite>>
- * Representa um combo que agrupa múltiplos itens do cardápio.
- * Trata itens individuais (Leaf) e outros combos (Composite) 
- * de forma uniforme através da interface IItemCardapio.
- */
 public class Combo implements IItemCardapio {
 
     private final String nome;
@@ -17,9 +11,9 @@ public class Combo implements IItemCardapio {
     private final double desconto; // desconto percentual aplicado ao combo
 
     public Combo(String nome, double desconto) {
-        this.nome     = nome;
+        this.nome = nome;
         this.desconto = desconto;
-        this.itens    = new ArrayList<>();
+        this.itens = new ArrayList<>();
     }
 
     public void adicionar(IItemCardapio item) {
@@ -49,7 +43,8 @@ public class Combo implements IItemCardapio {
         StringBuilder sb = new StringBuilder(nome + " (");
         for (int i = 0; i < itens.size(); i++) {
             sb.append(itens.get(i).getDescricao());
-            if (i < itens.size() - 1) sb.append(", ");
+            if (i < itens.size() - 1)
+                sb.append(", ");
         }
         sb.append(")");
         if (desconto > 0) {

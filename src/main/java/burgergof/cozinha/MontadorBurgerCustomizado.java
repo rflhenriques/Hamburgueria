@@ -6,18 +6,13 @@ import burgergof.cardapio.FabricaInfoNutricional;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * <<ConcreteBuilder>> (Builder)
- * Constrói passo a passo um lanche totalmente personalizado.
- * Isolando o processo de construção da representação final.
- */
 public class MontadorBurgerCustomizado implements IBuilderLanche {
 
-    private String tipoPao    = "Pão Padrão";
-    private String tipoCarne  = "Carne Bovina";
-    private double precoBase  = 18.00;
-    private final List<String> adicionais   = new ArrayList<>();
-    private final List<String> removidos    = new ArrayList<>();
+    private String tipoPao = "Pão Padrão";
+    private String tipoCarne = "Carne Bovina";
+    private double precoBase = 18.00;
+    private final List<String> adicionais = new ArrayList<>();
+    private final List<String> removidos = new ArrayList<>();
     private double precoAdicionais = 0.0;
 
     @Override
@@ -29,7 +24,8 @@ public class MontadorBurgerCustomizado implements IBuilderLanche {
     @Override
     public IBuilderLanche setCarne(String tipoCarne) {
         this.tipoCarne = tipoCarne;
-        if (tipoCarne.equalsIgnoreCase("Dupla")) precoBase += 8.00;
+        if (tipoCarne.equalsIgnoreCase("Dupla"))
+            precoBase += 8.00;
         return this;
     }
 
@@ -50,7 +46,7 @@ public class MontadorBurgerCustomizado implements IBuilderLanche {
     public Produto getResultado() {
         StringBuilder descricao = new StringBuilder();
         descricao.append("Burger Custom [").append(tipoPao)
-                 .append(" + ").append(tipoCarne).append("]");
+                .append(" + ").append(tipoCarne).append("]");
 
         if (!adicionais.isEmpty()) {
             descricao.append(" +").append(String.join(", +", adicionais));
@@ -66,10 +62,10 @@ public class MontadorBurgerCustomizado implements IBuilderLanche {
 
     @Override
     public void reset() {
-        tipoPao           = "Pão Padrão";
-        tipoCarne         = "Carne Bovina";
-        precoBase         = 18.00;
-        precoAdicionais   = 0.0;
+        tipoPao = "Pão Padrão";
+        tipoCarne = "Carne Bovina";
+        precoBase = 18.00;
+        precoAdicionais = 0.0;
         adicionais.clear();
         removidos.clear();
     }

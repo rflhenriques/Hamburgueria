@@ -1,9 +1,5 @@
 package burgergof.cardapio;
 
-/**
- * <<ConcreteDecorator>>
- * Adiciona bacon ao lanche, incrementando preço e descrição.
- */
 public class BaconDecorator extends AdicionalDecorator {
 
     private static final double PRECO_BACON = 3.00;

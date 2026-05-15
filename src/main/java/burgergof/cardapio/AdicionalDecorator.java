@@ -2,12 +2,6 @@ package burgergof.cardapio;
 
 import burgergof.visitor.IVisitor;
 
-/**
- * <<Decorator>> (classe abstrata)
- * Adiciona funcionalidades extras a um item do cardápio de forma dinâmica.
- * Mantém uma referência ao item decorado e delega chamadas,
- * adicionando comportamento antes ou depois.
- */
 public abstract class AdicionalDecorator implements IItemCardapio {
 
     protected IItemCardapio itemBase;
@@ -28,7 +22,6 @@ public abstract class AdicionalDecorator implements IItemCardapio {
 
     @Override
     public void aceitar(IVisitor visitor) {
-        // O decorator é transparente para o Visitor
         itemBase.aceitar(visitor);
     }
 }

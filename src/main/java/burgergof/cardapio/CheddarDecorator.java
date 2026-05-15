@@ -1,9 +1,5 @@
 package burgergof.cardapio;
 
-/**
- * <<ConcreteDecorator>>
- * Adiciona cheddar extra ao lanche.
- */
 public class CheddarDecorator extends AdicionalDecorator {
 
     private static final double PRECO_CHEDDAR = 2.50;

@@ -1,11 +1,5 @@
 package burgergof.atendimento;
 
-/**
- * <<Singleton>>
- * Garante que exista apenas uma instância do gerenciador central
- * do restaurante — conexão com banco, configurações globais, etc.
- * Implementado com double-checked locking para thread safety.
- */
 public class SistemaHamburgueria {
 
     private static volatile SistemaHamburgueria instancia;
@@ -15,7 +9,7 @@ public class SistemaHamburgueria {
 
     private SistemaHamburgueria() {
         this.nomeRestaurante = "BurgerGoF";
-        this.aberto          = true;
+        this.aberto = true;
         System.out.println("[Singleton] SistemaHamburgueria inicializado.");
     }
 
@@ -30,9 +24,17 @@ public class SistemaHamburgueria {
         return instancia;
     }
 
-    public String getNomeRestaurante() { return nomeRestaurante; }
-    public boolean isAberto()          { return aberto; }
-    public void fechar()               { this.aberto = false; }
+    public String getNomeRestaurante() {
+        return nomeRestaurante;
+    }
+
+    public boolean isAberto() {
+        return aberto;
+    }
+
+    public void fechar() {
+        this.aberto = false;
+    }
 
     @Override
     public String toString() {
