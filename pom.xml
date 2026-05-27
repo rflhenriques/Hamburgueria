@@ -15,8 +15,8 @@
     </properties>
 
     <build>
-        <sourceDirectory>main</sourceDirectory>
-        <testSourceDirectory>tests</testSourceDirectory>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
     </build>
 
     <dependencies>
